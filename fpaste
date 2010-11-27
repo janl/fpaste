@@ -1,0 +1,61 @@
+#!/usr/bin/env node
+/*
+  Usage:
+    cat file | fpaste
+
+  Posts contents of stdin to friendpaste and places the resulting URL
+  into the system paste buffer.
+
+  Mac OS X only.
+
+  Author: Jan Lehnardt <jan@apache.org>
+
+  MIT License
+*/
+var request = require("request");
+var exec = require("child_process").exec;
+
+function pb_copy(url) {
+  var cmd = "echo '" + url + "' | pbcopy";
+  exec(cmd, function(error, stdin, stdout) {
+    if(error !== null) {
+      console.log("exec error: " + error);
+    }
+  });
+}
+
+function send_request(paste) {
+  var body = JSON.stringify({
+    title:"",
+    snippet: paste,
+    language: "text"
+  });
+  var options = {
+    uri: "http://www.friendpaste.com/",
+    method: "POST",
+    body: body,
+    headers: {
+      "Content-Type": "application/json"
+    }
+  };
+  request(options, function(error, response, body) {
+    if(error) {
+      console.log("ERR: " + error);
+      return;
+    }
+    body = JSON.parse(body);
+    pb_copy(body.url);
+  });
+}
+
+var stdin = process.openStdin();
+stdin.setEncoding('utf8');
+
+var buffer = "";
+stdin.on('data', function (chunk) {
+  buffer += chunk;
+});
+
+stdin.on('end', function () {
+  send_request(buffer);
+});

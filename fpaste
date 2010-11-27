@@ -3,8 +3,8 @@
   Usage:
     cat file | fpaste
 
-  Posts contents of stdin to friendpaste and places the resulting URL
-  into the system paste buffer.
+Posts contents of stdin to friendpaste.com and places the resulting
+URL into the system paste buffer.
 
   Mac OS X only.
 
